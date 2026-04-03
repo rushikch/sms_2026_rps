@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
+import Receipt from './Receipt'
 import toast, { Toaster } from 'react-hot-toast'
 import { UserPlus, Edit, Trash2, ArrowLeft, Eye, X } from 'lucide-react'
 import Link from 'next/link'
@@ -42,6 +43,7 @@ export default function StudentList() {
   const [showAddFeeForm, setShowAddFeeForm] = useState(false)
   const [feeAmount, setFeeAmount] = useState('')
   const [feeDate, setFeeDate] = useState(new Date().toISOString().split('T')[0])
+  const [showReceipt, setShowReceipt] = useState<Fee | null>(null)
   const [newStudent, setNewStudent] = useState<Partial<Student>>({
     name: '',
     class: '',
@@ -173,17 +175,20 @@ export default function StudentList() {
 
     setLoading(true)
     const transactionId = crypto.randomUUID()
-    const { error } = await supabase.from('fees').insert({
+    const { data, error } = await supabase.from('fees').insert({
       student_id: selectedStudentForFees.id,
       amount: parseFloat(feeAmount),
       date: feeDate,
       transaction_id: transactionId
-    })
+    }).select('*').single()
 
     if (error) {
       toast.error('Failed to add fee: ' + error.message)
     } else {
       toast.success('Fee added successfully!')
+      if (data) {
+        setShowReceipt(data)
+      }
       setFeeAmount('')
       setFeeDate(new Date().toISOString().split('T')[0])
       setShowAddFeeForm(false)
@@ -539,6 +544,15 @@ export default function StudentList() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Receipt Modal */}
+      {showReceipt && selectedStudentForFees && (
+        <Receipt
+          fee={showReceipt}
+          student={selectedStudentForFees}
+          onClose={() => setShowReceipt(null)}
+        />
       )}
     </div>
   )
