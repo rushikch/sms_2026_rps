@@ -1,1 +1,1 @@
-{"/_not-found/page":"/_not-found","/login/page":"/login","/fees/page":"/fees","/page":"/","/finance/page":"/finance","/students/page":"/students","/unauthorized/page":"/unauthorized","/users/page":"/users"}
+{"/_not-found/page":"/_not-found","/api/users/route":"/api/users","/login/page":"/login","/finance/page":"/finance","/page":"/","/students/page":"/students","/fees/page":"/fees","/unauthorized/page":"/unauthorized","/users/page":"/users","/api/students/bulk-upload/route":"/api/students/bulk-upload"}

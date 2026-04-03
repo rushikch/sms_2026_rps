@@ -39,36 +39,29 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      // Get all auth users
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers()
-
-      if (authError) {
-        toast.error('Failed to fetch users: ' + authError.message)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('No active session')
         return
       }
 
-      // Get all user roles
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('*')
-
-      if (rolesError) {
-        toast.error('Failed to fetch user roles: ' + rolesError.message)
-        return
-      }
-
-      // Combine users with their roles
-      const combinedUsers = authUsers.map(authUser => {
-        const userRoleData = rolesData?.find(r => r.user_id === authUser.id)
-        return {
-          id: authUser.id,
-          email: authUser.email || '',
-          role: userRoleData?.role || 'user',
-          created_at: authUser.created_at || ''
-        }
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ action: 'list' })
       })
 
-      setUsers(combinedUsers)
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to fetch users')
+        return
+      }
+
+      setUsers(result.users || [])
     } catch (error) {
       toast.error('Error fetching users: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
@@ -106,46 +99,37 @@ export default function UserManagement() {
 
     setLoading(true)
     try {
-      // Create user in auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true
-      })
-
-      if (authError) {
-        toast.error('Failed to create user: ' + authError.message)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('No active session')
         setLoading(false)
         return
       }
 
-      if (!authData.user) {
-        toast.error('Failed to create user')
-        setLoading(false)
-        return
-      }
-
-      // Assign role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          action: 'create',
+          email,
+          password,
           role: userRole
         })
+      })
 
-      if (roleError) {
-        toast.error('Failed to assign role: ' + roleError.message)
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to create user')
         setLoading(false)
         return
       }
 
       toast.success('User created successfully!')
-      setUsers([...users, {
-        id: authData.user.id,
-        email,
-        role: userRole,
-        created_at: new Date().toISOString()
-      }])
+      setUsers([...users, result.user])
       resetForm()
       setShowAdd(false)
     } catch (error) {
@@ -159,21 +143,40 @@ export default function UserManagement() {
 
     setLoading(true)
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: editingRole })
-        .eq('user_id', editingId)
-
-      if (error) {
-        toast.error('Failed to update role: ' + error.message)
-      } else {
-        toast.success('User role updated successfully!')
-        const updatedUsers = users.map(u =>
-          u.id === editingId ? { ...u, role: editingRole } : u
-        )
-        setUsers(updatedUsers)
-        setEditingId(null)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('No active session')
+        setLoading(false)
+        return
       }
+
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          action: 'updateRole',
+          userId: editingId,
+          role: editingRole
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to update role')
+        setLoading(false)
+        return
+      }
+
+      toast.success('User role updated successfully!')
+      const updatedUsers = users.map(u =>
+        u.id === editingId ? { ...u, role: editingRole } : u
+      )
+      setUsers(updatedUsers)
+      setEditingId(null)
     } catch (error) {
       toast.error('Error: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
@@ -187,21 +190,35 @@ export default function UserManagement() {
 
     setLoading(true)
     try {
-      // Delete from user_roles
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', id)
-
-      // Delete auth user
-      const { error } = await supabase.auth.admin.deleteUser(id)
-
-      if (error) {
-        toast.error('Failed to delete user: ' + error.message)
-      } else {
-        toast.success('User deleted successfully!')
-        setUsers(users.filter(u => u.id !== id))
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('No active session')
+        setLoading(false)
+        return
       }
+
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          action: 'delete',
+          userId: id
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to delete user')
+        setLoading(false)
+        return
+      }
+
+      toast.success('User deleted successfully!')
+      setUsers(users.filter(u => u.id !== id))
     } catch (error) {
       toast.error('Error: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }

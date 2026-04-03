@@ -1,0 +1,11 @@
+name,class,parent_name,phone,address,date_of_birth,date_of_joining,aadhar_number,initial_fee_amount,fees_date,other_details
+John Doe,Class 1,Jane Doe,9876543210,"123 Main Street, City, State 123456",2018-05-15,2024-04-01,123456789012,5000,2024-04-01,None
+Maria Garcia,Class 2,Robert Garcia,9123456789,"456 Oak Avenue, City, State 654321",2017-08-22,2024-04-01,234567890123,5000,2024-04-01,
+Priya Singh,Nursery,Rajesh Singh,9876543211,"789 Pine Road, City, State 789012",2021-02-10,2024-04-01,345678901234,,2024-04-01,Allergic to peanuts
+Ahmed Khan,UKG,Fatima Khan,9765432109,"321 Elm Street, City, State 345678",2019-12-05,2024-04-01,456789012345,5000,2024-04-01,
+Vikram Sharma,Class 3,Deepak Sharma,9654321098,"654 Maple Drive, City, State 567890",2016-03-18,2024-04-01,567890123456,5250,2024-04-01,
+Neha Gupta,Class 4,Anirban Gupta,9543210987,"987 Birch Lane, City, State 234567",2015-07-22,2024-04-01,678901234567,5000,2024-04-01,
+Arjun Patel,Class 5,Amit Patel,9432109876,"147 Cedar Court, City, State 012345",2014-11-30,2024-04-01,789012345678,5500,2024-04-01,
+Isha Reddy,LKG,Suresh Reddy,9321098765,"258 Walnut Way, City, State 890123",2020-01-12,2024-04-01,890123456789,,2024-04-01,
+Rohan Verma,Class 1,Rajesh Verma,9210987654,"369 Spruce Street, City, State 456789",2018-09-05,2024-04-01,901234567890,5000,2024-04-01,
+Sarita Nair,Class 2,Mohan Nair,9109876543,"741 Ash Avenue, City, State 678901",2017-04-14,2024-04-01,012345678901,5000,2024-04-01,

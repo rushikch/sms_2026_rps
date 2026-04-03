@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
 import Receipt from './Receipt'
+import BulkStudentUpload from './BulkStudentUpload'
 import toast, { Toaster } from 'react-hot-toast'
-import { UserPlus, Edit, Trash2, ArrowLeft, Eye, X, Download } from 'lucide-react'
+import { UserPlus, Edit, Trash2, ArrowLeft, Eye, X, Download, Upload } from 'lucide-react'
 import Link from 'next/link'
 
 type Student = {
@@ -37,6 +38,7 @@ export default function StudentList() {
   const [students, setStudents] = useState<Student[]>([])
   const [filterClass, setFilterClass] = useState('')
   const [showAdd, setShowAdd] = useState(false)
+  const [showBulkUpload, setShowBulkUpload] = useState(false)
   const [viewMode, setViewMode] = useState<'all' | 'byClass'>('all')
   const [selectedClassForView, setSelectedClassForView] = useState<string | null>(null)
   const [showFeesModal, setShowFeesModal] = useState(false)
@@ -392,7 +394,13 @@ export default function StudentList() {
             </select>
           </div>
           {(role === 'admin' || role === 'superadmin') && (
-            <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '', active: true }) }} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Student</button>
+            <>
+              <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '', active: true }) }} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Student</button>
+              <button onClick={() => setShowBulkUpload(true)} className="bg-purple-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
+                <Upload size={16} className="mr-2" />
+                Bulk Upload
+              </button>
+            </>
           )}
           {role === 'superadmin' && (
             <button onClick={downloadStudentsCSV} className="bg-green-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
@@ -830,6 +838,29 @@ export default function StudentList() {
           student={selectedStudentForFees}
           onClose={() => setShowReceipt(null)}
         />
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl my-8">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-400 text-white p-6 flex items-center justify-between sticky top-0">
+              <h2 className="text-2xl font-bold">Bulk Student Upload</h2>
+              <button
+                onClick={() => {
+                  setShowBulkUpload(false)
+                  fetchStudents()
+                }}
+                className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6">
+              <BulkStudentUpload />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
