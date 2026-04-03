@@ -32,6 +32,15 @@ export default function FeeManagement() {
   const searchParams = useSearchParams()
   const studentIdFilter = searchParams.get('studentId')
 
+  // Filter states for fees table
+  const [filterStudentName, setFilterStudentName] = useState('')
+  const [filterClass, setFilterClass] = useState('')
+  const [filterTransactionId, setFilterTransactionId] = useState('')
+  const [filterDateFrom, setFilterDateFrom] = useState('')
+  const [filterDateTo, setFilterDateTo] = useState('')
+  const [filterAmountMin, setFilterAmountMin] = useState('')
+  const [filterAmountMax, setFilterAmountMax] = useState('')
+
   useEffect(() => {
     fetchFees()
     fetchStudents()
@@ -121,9 +130,37 @@ export default function FeeManagement() {
     }
   }
 
+  const getFilteredFees = () => {
+    return fees.filter(fee => {
+      const matchesStudentName = !filterStudentName || 
+        (fee.student?.name && fee.student.name.toLowerCase().includes(filterStudentName.toLowerCase()))
+      const matchesClass = !filterClass || (fee.student?.class === filterClass)
+      const matchesTransactionId = !filterTransactionId || 
+        fee.transaction_id.toLowerCase().includes(filterTransactionId.toLowerCase())
+      const matchesDateFrom = !filterDateFrom || fee.date >= filterDateFrom
+      const matchesDateTo = !filterDateTo || fee.date <= filterDateTo
+      const matchesAmountMin = !filterAmountMin || fee.amount >= parseFloat(filterAmountMin)
+      const matchesAmountMax = !filterAmountMax || fee.amount <= parseFloat(filterAmountMax)
+
+      return matchesStudentName && matchesClass && matchesTransactionId && 
+             matchesDateFrom && matchesDateTo && matchesAmountMin && matchesAmountMax
+    })
+  }
+
+  const clearFilters = () => {
+    setFilterStudentName('')
+    setFilterClass('')
+    setFilterTransactionId('')
+    setFilterDateFrom('')
+    setFilterDateTo('')
+    setFilterAmountMin('')
+    setFilterAmountMax('')
+  }
+
   const downloadFeesCSV = () => {
+    const filteredFees = getFilteredFees()
     const headers = ['Transaction ID', 'Student ID', 'Student Name', 'Class', 'Amount', 'Date']
-    const csvData = fees.map(fee => [
+    const csvData = filteredFees.map(fee => [
       fee.transaction_id,
       fee.student?.student_id || '',
       fee.student?.name || '',
@@ -140,7 +177,7 @@ export default function FeeManagement() {
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
     link.setAttribute('href', url)
-    link.setAttribute('download', `fees_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `fees_filtered_${new Date().toISOString().split('T')[0]}.csv`)
     link.style.visibility = 'hidden'
     document.body.appendChild(link)
     link.click()
@@ -216,6 +253,95 @@ export default function FeeManagement() {
       {showReceipt && (
         <Receipt fee={showReceipt} student={students.find(s => s.id === showReceipt.student_id)!} onClose={() => setShowReceipt(null)} />
       )}
+
+      {/* Fee Filters */}
+      <div className="mb-6 p-4 border rounded bg-gray-50">
+        <h3 className="text-lg font-semibold mb-4">Filter Fees</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Student Name</label>
+            <input
+              type="text"
+              placeholder="Search by student name"
+              value={filterStudentName}
+              onChange={e => setFilterStudentName(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
+            <select
+              value={filterClass}
+              onChange={e => setFilterClass(e.target.value)}
+              className="w-full border p-2 rounded"
+            >
+              <option value="">All Classes</option>
+              {classes.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID</label>
+            <input
+              type="text"
+              placeholder="Search transaction ID"
+              value={filterTransactionId}
+              onChange={e => setFilterTransactionId(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Amount Range</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filterAmountMin}
+                onChange={e => setFilterAmountMin(e.target.value)}
+                className="w-1/2 border p-2 rounded text-sm"
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                value={filterAmountMax}
+                onChange={e => setFilterAmountMax(e.target.value)}
+                className="w-1/2 border p-2 rounded text-sm"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+            <input
+              type="date"
+              value={filterDateFrom}
+              onChange={e => setFilterDateFrom(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+            <input
+              type="date"
+              value={filterDateTo}
+              onChange={e => setFilterDateTo(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={clearFilters}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Clear Filters
+          </button>
+          <div className="text-sm text-gray-600 flex items-center">
+            Showing {getFilteredFees().length} of {fees.length} fees
+          </div>
+        </div>
+      </div>
+
       <table className="w-full border">
         <thead>
           <tr>
@@ -228,7 +354,7 @@ export default function FeeManagement() {
           </tr>
         </thead>
         <tbody>
-          {fees.map(f => (
+          {getFilteredFees().map(f => (
             <tr key={f.id}>
               {editingId === f.id ? (
                 <>

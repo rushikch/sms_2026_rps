@@ -42,6 +42,7 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Generate printable receipts
 - ✅ Fee history and transaction tracking
 - ✅ Student-wise fee management
+- ✅ Advanced filtering by student name, class, transaction ID, date range, and amount range
 - ✅ Download fee data as CSV (Super Admin only)
 
 ### User Management & Security
