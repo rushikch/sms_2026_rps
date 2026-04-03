@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
 import Receipt from './Receipt'
 import toast, { Toaster } from 'react-hot-toast'
-import { UserPlus, Edit, Trash2, ArrowLeft, Eye, X } from 'lucide-react'
+import { UserPlus, Edit, Trash2, ArrowLeft, Eye, X, Download } from 'lucide-react'
 import Link from 'next/link'
 
 type Student = {
@@ -323,6 +323,37 @@ export default function StudentList() {
     return studentId
   }
 
+  const downloadStudentsCSV = () => {
+    const headers = ['Student ID', 'Name', 'Class', 'Parent Name', 'Phone', 'Address', 'Date of Birth', 'Date of Joining', 'Aadhar Number', 'Active Status', 'Other Details']
+    const csvData = students.map(student => [
+      student.student_id,
+      student.name,
+      student.class,
+      student.parent_name,
+      student.phone || '',
+      student.address || '',
+      student.date_of_birth || '',
+      student.date_of_joining || '',
+      student.aadhar_number || '',
+      student.active ? 'Active' : 'Inactive',
+      student.other_details || ''
+    ])
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `students_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="p-4">
       <Toaster />
@@ -360,7 +391,13 @@ export default function StudentList() {
               {classes.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '' }) }} className="bg-blue-500 text-white p-2 mb-4">Add Student</button>
+          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '', active: true }) }} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Student</button>
+          {role === 'superadmin' && (
+            <button onClick={downloadStudentsCSV} className="bg-green-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
+              <Download size={16} className="mr-2" />
+              Download Students
+            </button>
+          )}
           {showAdd && (
             <div className="mb-4 p-4 border rounded bg-gray-50">
               <h3 className="font-bold mb-3">Add New Student</h3>

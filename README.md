@@ -35,12 +35,14 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Class-based student organization
 - ✅ Search and filter functionality
 - ✅ Active/Inactive student status management
+- ✅ Download student data as CSV (Super Admin only)
 
 ### Fee Management
 - ✅ Record and track fee payments
 - ✅ Generate printable receipts
 - ✅ Fee history and transaction tracking
 - ✅ Student-wise fee management
+- ✅ Download fee data as CSV (Super Admin only)
 
 ### User Management & Security
 - ✅ Role-based access control (Super Admin, Admin, User)

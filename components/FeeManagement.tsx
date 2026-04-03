@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
 import Receipt from './Receipt'
 import toast, { Toaster } from 'react-hot-toast'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, X, Download } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
@@ -121,6 +121,32 @@ export default function FeeManagement() {
     }
   }
 
+  const downloadFeesCSV = () => {
+    const headers = ['Transaction ID', 'Student ID', 'Student Name', 'Class', 'Amount', 'Date']
+    const csvData = fees.map(fee => [
+      fee.transaction_id,
+      fee.student?.student_id || '',
+      fee.student?.name || '',
+      fee.student?.class || '',
+      fee.amount.toString(),
+      fee.date
+    ])
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `fees_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="p-4">
       <Toaster />
@@ -140,7 +166,13 @@ export default function FeeManagement() {
           </Link>
         )}
       </h1>
-      <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4">Add Fee Payment</button>
+      <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Fee Payment</button>
+      {role === 'superadmin' && (
+        <button onClick={downloadFeesCSV} className="bg-green-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
+          <Download size={16} className="mr-2" />
+          Download Fees
+        </button>
+      )}
       {showAdd && (
         <div className="mb-4 p-4 border rounded bg-gray-50">
           <h2 className="text-lg mb-2">Search Student</h2>
