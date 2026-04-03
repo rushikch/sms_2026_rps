@@ -15,6 +15,7 @@ interface ReceiptProps {
 export default function Receipt({ fee, student, onClose }: ReceiptProps) {
   const ref = useRef<HTMLDivElement>(null)
   const handlePrint = useReactToPrint({
+    // @ts-ignore
     content: () => ref.current,
   })
 

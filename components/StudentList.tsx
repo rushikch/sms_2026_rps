@@ -55,7 +55,7 @@ export default function StudentList() {
   }
 
   const filteredStudents = filterClass ? students.filter(s => s.class === filterClass) : students
-  const classes = [...new Set(students.map(s => s.class))]
+  const classes = Array.from(new Set(students.map(s => s.class)))
 
   return (
     <div className="p-4">
