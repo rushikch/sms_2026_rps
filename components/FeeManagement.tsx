@@ -203,7 +203,9 @@ export default function FeeManagement() {
           </Link>
         )}
       </h1>
-      <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Fee Payment</button>
+      {(role === 'admin' || role === 'superadmin') && (
+        <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Fee Payment</button>
+      )}
       {role === 'superadmin' && (
         <button onClick={downloadFeesCSV} className="bg-green-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
           <Download size={16} className="mr-2" />

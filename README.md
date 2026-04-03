@@ -37,13 +37,13 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Active/Inactive student status management
 - ✅ Download student data as CSV (Super Admin only)
 
-### Fee Management
-- ✅ Record and track fee payments
-- ✅ Generate printable receipts
-- ✅ Fee history and transaction tracking
-- ✅ Student-wise fee management
-- ✅ Advanced filtering by student name, class, transaction ID, date range, and amount range
-- ✅ Download fee data as CSV (Super Admin only)
+### Finance Management
+- ✅ Track daily expenses, monthly bills, and adhoc expenses
+- ✅ Record fee collections and other income
+- ✅ Comprehensive financial transaction management
+- ✅ Advanced filtering by type, category, and date range
+- ✅ Financial summary with income, expenses, and net calculations
+- ✅ Download financial data as CSV (Super Admin only)
 
 ### User Management & Security
 - ✅ Role-based access control (Super Admin, Admin, User)
@@ -57,7 +57,33 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Real-time notifications
 - ✅ Print-friendly receipts
 
-## 📋 Prerequisites
+## � Role-Based Permissions
+
+### Super Admin
+- ✅ Full access to all features
+- ✅ Add, edit, and delete students
+- ✅ Add, edit, and delete fee payments
+- ✅ Add, edit, and delete financial transactions
+- ✅ Toggle student active/inactive status
+- ✅ Download student, fee, and financial data as CSV
+- ✅ All administrative functions
+
+### Admin
+- ✅ Add new students
+- ✅ Edit existing students
+- ✅ Toggle student active/inactive status
+- ✅ Add fee payments
+- ✅ Add financial transactions (expenses and collections)
+- ❌ Cannot delete students
+- ❌ Cannot edit or delete fee payments
+- ❌ Cannot edit or delete financial transactions
+- ❌ Cannot download data
+
+### User
+- ✅ View-only access to student, fee, and financial information
+- ❌ Cannot modify any data
+
+## �📋 Prerequisites
 
 Before running this application, make sure you have the following installed:
 
@@ -125,6 +151,19 @@ CREATE TABLE fees (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Financial transactions table
+CREATE TABLE financial_transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  description TEXT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('expense', 'collection')),
+  category TEXT NOT NULL CHECK (category IN ('daily_expense', 'monthly_bill', 'adhoc_expense', 'fee_collection')),
+  transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- User roles table
 CREATE TABLE user_roles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -137,6 +176,7 @@ CREATE TABLE user_roles (
 -- Enable Row Level Security
 ALTER TABLE students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fees ENABLE ROW LEVEL SECURITY;
+ALTER TABLE financial_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies (adjust according to your needs)
@@ -156,6 +196,18 @@ CREATE POLICY "Allow authenticated users to read fees" ON fees
   FOR SELECT USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Allow admins to manage fees" ON fees
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM user_roles
+      WHERE user_id = auth.uid()
+      AND role IN ('superadmin', 'admin')
+    )
+  );
+
+CREATE POLICY "Allow authenticated users to read financial transactions" ON financial_transactions
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow admins to manage financial transactions" ON financial_transactions
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM user_roles

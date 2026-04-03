@@ -391,7 +391,9 @@ export default function StudentList() {
               {classes.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '', active: true }) }} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Student</button>
+          {(role === 'admin' || role === 'superadmin') && (
+            <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '', active: true }) }} className="bg-blue-500 text-white p-2 mb-4 mr-2">Add Student</button>
+          )}
           {role === 'superadmin' && (
             <button onClick={downloadStudentsCSV} className="bg-green-500 text-white p-2 mb-4 mr-2 inline-flex items-center">
               <Download size={16} className="mr-2" />
