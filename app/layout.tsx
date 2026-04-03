@@ -36,9 +36,18 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Header />
-        {children}
+      <body className={`${inter.className} min-h-screen`}>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1 animate-fade-in">
+            {children}
+          </main>
+          <footer className="bg-white/50 backdrop-blur-sm border-t border-gray-200 py-4 mt-auto">
+            <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
+              © 2026 Rainbow Public School. All rights reserved.
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   )
