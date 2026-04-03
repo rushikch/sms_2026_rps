@@ -19,21 +19,19 @@ export default async function RootLayout({
 }) {
   const supabase = createClient()
 
+  // Check user role (session is ensured by middleware for non-login pages)
   const { data: { session } } = await supabase.auth.getSession()
 
-  if (!session) {
-    redirect('/login')
-  }
+  if (session) {
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', session.user.id)
+      .single()
 
-  // Check user role
-  const { data: roleData } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', session.user.id)
-    .single()
-
-  if (!roleData || !['admin', 'superadmin'].includes(roleData.role)) {
-    redirect('/unauthorized')
+    if (!roleData || !['admin', 'superadmin'].includes(roleData.role)) {
+      redirect('/unauthorized')
+    }
   }
 
   return (
