@@ -62,3 +62,20 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-blue-600;
 }
+
+/* Print styles for receipts */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt, .receipt * {
+    visibility: visible;
+  }
+  .receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+  }
+}

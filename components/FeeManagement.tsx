@@ -42,14 +42,22 @@ export default function FeeManagement() {
     if (studentIdFilter) {
       query = query.eq('student_id', studentIdFilter)
     }
-    const { data } = await query
-    setFees(data || [])
+    const { data, error } = await query
+    if (error) {
+      toast.error('Failed to fetch fees: ' + error.message)
+    } else {
+      setFees(data || [])
+    }
   }
 
   const fetchStudents = async () => {
-    const { data } = await supabase.from('students').select('id, name, class, parent_name')
-    setStudents(data || [])
-    setFilteredStudents(data || [])
+    const { data, error } = await supabase.from('students').select('id, name, class, parent_name')
+    if (error) {
+      toast.error('Failed to fetch students: ' + error.message)
+    } else {
+      setStudents(data || [])
+      setFilteredStudents(data || [])
+    }
   }
 
   const searchStudents = () => {
@@ -63,24 +71,21 @@ export default function FeeManagement() {
   const addFee = async () => {
     if (!selectedStudent) return
     setLoading(true)
-    try {
-      const transactionId = crypto.randomUUID()
-      const { data } = await supabase.from('fees').insert({
-        student_id: selectedStudent.id,
-        amount: parseFloat(amount),
-        date,
-        transaction_id: transactionId
-      }).select('*, student:students(name, class)').single()
-      if (data) {
-        setFees([...fees, data])
-        setShowReceipt(data)
-        toast.success('Fee added successfully!')
-      }
-    } catch (error: any) {
-      toast.error(error.message)
-    } finally {
-      setLoading(false)
+    const transactionId = crypto.randomUUID()
+    const { data, error } = await supabase.from('fees').insert({
+      student_id: selectedStudent.id,
+      amount: parseFloat(amount),
+      date,
+      transaction_id: transactionId
+    }).select('*, student:students(name, class)').single()
+    if (error) {
+      toast.error('Failed to add fee: ' + error.message)
+    } else if (data) {
+      setFees([...fees, data])
+      setShowReceipt(data)
+      toast.success('Fee added successfully!')
     }
+    setLoading(false)
     setShowAdd(false)
     setSelectedStudent(null)
     setAmount('')
@@ -89,32 +94,30 @@ export default function FeeManagement() {
   const updateFee = async () => {
     if (editingId) {
       setLoading(true)
-      try {
-        await supabase.from('fees').update({ amount: parseFloat(amount), date }).eq('id', editingId)
+      const { error } = await supabase.from('fees').update({ amount: parseFloat(amount), date }).eq('id', editingId)
+      if (error) {
+        toast.error('Failed to update fee: ' + error.message)
+      } else {
         toast.success('Fee updated successfully!')
         fetchFees()
         setEditingId(null)
         setAmount('')
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
       }
+      setLoading(false)
     }
   }
 
   const deleteFee = async (id: string) => {
     if (role === 'superadmin') {
       setLoading(true)
-      try {
-        await supabase.from('fees').delete().eq('id', id)
+      const { error } = await supabase.from('fees').delete().eq('id', id)
+      if (error) {
+        toast.error('Failed to delete fee: ' + error.message)
+      } else {
         toast.success('Fee deleted successfully!')
         fetchFees()
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
       }
+      setLoading(false)
     }
   }
 

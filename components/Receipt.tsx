@@ -37,23 +37,6 @@ export default function Receipt({ fee, student, onClose }: ReceiptProps) {
         </div>
         <button onClick={handlePrint} className="mt-4 bg-blue-500 text-white p-2 w-full">Print</button>
       </div>
-      <style jsx>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .receipt, .receipt * {
-            visibility: visible;
-          }
-          .receipt {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            max-width: none;
-          }
-        }
-      `}</style>
     </div>
   )
 }

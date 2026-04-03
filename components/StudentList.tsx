@@ -47,14 +47,20 @@ export default function StudentList() {
   }, [])
 
   const fetchStudents = async () => {
-    const { data } = await supabase.from('students').select('*')
-    setStudents(data || [])
+    const { data, error } = await supabase.from('students').select('*')
+    if (error) {
+      toast.error('Failed to fetch students: ' + error.message)
+    } else {
+      setStudents(data || [])
+    }
   }
 
   const addStudent = async () => {
     setLoading(true)
-    try {
-      await supabase.from('students').insert(newStudent)
+    const { error } = await supabase.from('students').insert(newStudent)
+    if (error) {
+      toast.error('Failed to add student: ' + error.message)
+    } else {
       toast.success('Student added successfully!')
       setNewStudent({
         name: '',
@@ -69,18 +75,17 @@ export default function StudentList() {
       })
       setShowAdd(false)
       fetchStudents()
-    } catch (error: any) {
-      toast.error(error.message)
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   const updateStudent = async () => {
     if (editingId) {
       setLoading(true)
-      try {
-        await supabase.from('students').update(newStudent).eq('id', editingId)
+      const { error } = await supabase.from('students').update(newStudent).eq('id', editingId)
+      if (error) {
+        toast.error('Failed to update student: ' + error.message)
+      } else {
         toast.success('Student updated successfully!')
         setEditingId(null)
         setNewStudent({
@@ -95,26 +100,22 @@ export default function StudentList() {
           aadhar_number: ''
         })
         fetchStudents()
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
       }
+      setLoading(false)
     }
   }
 
   const deleteStudent = async (id: string) => {
     if (role === 'superadmin') {
       setLoading(true)
-      try {
-        await supabase.from('students').delete().eq('id', id)
+      const { error } = await supabase.from('students').delete().eq('id', id)
+      if (error) {
+        toast.error('Failed to delete student: ' + error.message)
+      } else {
         toast.success('Student deleted successfully!')
         fetchStudents()
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
       }
+      setLoading(false)
     }
   }
 
