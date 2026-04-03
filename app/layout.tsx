@@ -19,7 +19,6 @@ export default async function RootLayout({
 }) {
   const supabase = createClient()
 
-  // Check user role (session is ensured by middleware for non-login pages)
   const { data: { session } } = await supabase.auth.getSession()
 
   if (session) {
@@ -37,8 +36,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Header />
-        {children}
+        <div className="app-container">
+          <div className="rainbow-bar" />
+          <Header />
+          <main className="main-content">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   )

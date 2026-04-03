@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
 import toast, { Toaster } from 'react-hot-toast'
+import { UserPlus, Edit, Trash2, ArrowLeft, Eye } from 'lucide-react'
+import Link from 'next/link'
 
 type Student = {
   id: string
@@ -121,6 +123,12 @@ export default function StudentList() {
   return (
     <div className="p-4">
       <Toaster />
+      <div className="mb-4">
+        <Link href="/" className="btn btn-outline inline-flex items-center">
+          <ArrowLeft size={16} className="mr-2" />
+          Back to Dashboard
+        </Link>
+      </div>
       <h1 className="text-2xl font-bold mb-4">Student Management</h1>
       <div className="mb-4">
         <label className="mr-2">Filter by Class:</label>
@@ -181,6 +189,10 @@ export default function StudentList() {
                   <td className="border p-2">{s.parent_name}</td>
                   <td className="border p-2">{s.phone}</td>
                   <td className="border p-2">
+                    <Link href={`/fees?studentId=${s.id}`} className="bg-blue-500 text-white p-1 mr-2 rounded inline-flex items-center">
+                      <Eye size={14} className="mr-1" />
+                      View Fees
+                    </Link>
                     {(role === 'admin' || role === 'superadmin') && <button onClick={() => { setEditingId(s.id); setNewStudent(s) }} className="bg-yellow-500 text-white p-1 mr-2">Edit</button>}
                     {role === 'superadmin' && <button onClick={() => deleteStudent(s.id)} className="bg-red-500 text-white p-1" disabled={loading}>{loading ? 'Deleting...' : 'Delete'}</button>}
                   </td>

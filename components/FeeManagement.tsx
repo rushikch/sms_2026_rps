@@ -5,6 +5,9 @@ import { createClient } from '@/utils/supabase/client'
 import { useRole } from '@/hooks/useRole'
 import Receipt from './Receipt'
 import toast, { Toaster } from 'react-hot-toast'
+import { ArrowLeft, X } from 'lucide-react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 type Student = { id: string; name: string; class: string; parent_name: string }
 type Fee = { id: string; student_id: string; amount: number; date: string; transaction_id: string; student?: Student }
@@ -26,6 +29,8 @@ export default function FeeManagement() {
   const [loading, setLoading] = useState(false)
   const { role } = useRole()
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const studentIdFilter = searchParams.get('studentId')
 
   useEffect(() => {
     fetchFees()
@@ -33,7 +38,11 @@ export default function FeeManagement() {
   }, [])
 
   const fetchFees = async () => {
-    const { data } = await supabase.from('fees').select('*, student:students(name, class)')
+    let query = supabase.from('fees').select('*, student:students(name, class)')
+    if (studentIdFilter) {
+      query = query.eq('student_id', studentIdFilter)
+    }
+    const { data } = await query
     setFees(data || [])
   }
 
@@ -111,7 +120,22 @@ export default function FeeManagement() {
   return (
     <div className="p-4">
       <Toaster />
-      <h1 className="text-2xl font-bold mb-4">Fee Management</h1>
+      <div className="mb-4">
+        <Link href="/" className="btn btn-outline inline-flex items-center">
+          <ArrowLeft size={16} className="mr-2" />
+          Back to Dashboard
+        </Link>
+      </div>
+      <h1 className="text-2xl font-bold mb-4">
+        Fee Management
+        {studentIdFilter && fees.length > 0 && ` for ${fees[0].student?.name}`}
+        {studentIdFilter && (
+          <Link href="/fees" className="ml-4 btn btn-outline inline-flex items-center text-sm">
+            <X size={14} className="mr-1" />
+            Clear Filter
+          </Link>
+        )}
+      </h1>
       <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4">Add Fee Payment</button>
       {showAdd && (
         <div className="mb-4 p-4 border rounded bg-gray-50">
