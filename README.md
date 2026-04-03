@@ -34,6 +34,7 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Comprehensive student profiles with all details
 - ✅ Class-based student organization
 - ✅ Search and filter functionality
+- ✅ Active/Inactive student status management
 
 ### Fee Management
 - ✅ Record and track fee payments
@@ -106,6 +107,7 @@ CREATE TABLE students (
   date_of_joining DATE,
   other_details TEXT,
   aadhar_number TEXT,
+  active BOOLEAN DEFAULT true NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -175,6 +177,13 @@ CREATE POLICY "Allow superadmin to manage roles" ON user_roles
 #### Add Student ID Column (if not already present)
 ```sql
 ALTER TABLE students ADD COLUMN IF NOT EXISTS student_id TEXT;
+```
+
+#### Add Active Status Column (for existing databases)
+```sql
+ALTER TABLE students ADD COLUMN active BOOLEAN DEFAULT true NOT NULL;
+UPDATE students SET active = true WHERE active IS NULL;
+COMMENT ON COLUMN students.active IS 'Indicates if the student is currently active/enrolled in the school';
 ```
 
 ### 5. User Setup

@@ -20,6 +20,7 @@ type Student = {
   date_of_joining: string
   other_details: string
   aadhar_number: string
+  active: boolean
 }
 
 type Fee = {
@@ -57,7 +58,8 @@ export default function StudentList() {
     date_of_birth: '',
     date_of_joining: '',
     other_details: '',
-    aadhar_number: ''
+    aadhar_number: '',
+    active: true
   })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -94,7 +96,8 @@ export default function StudentList() {
       date_of_birth: newStudent.date_of_birth,
       date_of_joining: newStudent.date_of_joining,
       other_details: newStudent.other_details,
-      aadhar_number: newStudent.aadhar_number
+      aadhar_number: newStudent.aadhar_number,
+      active: newStudent.active
     }
     
     const { error } = await supabase.from('students').insert(studentData)
@@ -112,7 +115,8 @@ export default function StudentList() {
         date_of_birth: '',
         date_of_joining: '',
         other_details: '',
-        aadhar_number: ''
+        aadhar_number: '',
+        active: true
       })
       setShowAdd(false)
       fetchStudents()
@@ -130,6 +134,7 @@ export default function StudentList() {
         toast.success('Student updated successfully!')
         setEditingId(null)
         setNewStudent({
+          student_id: '',
           name: '',
           class: '',
           parent_name: '',
@@ -138,7 +143,8 @@ export default function StudentList() {
           date_of_birth: '',
           date_of_joining: '',
           other_details: '',
-          aadhar_number: ''
+          aadhar_number: '',
+          active: true
         })
         fetchStudents()
       }
@@ -157,6 +163,26 @@ export default function StudentList() {
         fetchStudents()
       }
       setLoading(false)
+    }
+  }
+
+  const toggleStudentStatus = async (id: string, currentStatus: boolean) => {
+    if (role === 'admin' || role === 'superadmin') {
+      setLoading(true)
+      const { error } = await supabase
+        .from('students')
+        .update({ active: !currentStatus })
+        .eq('id', id)
+      
+      if (error) {
+        toast.error('Failed to update student status: ' + error.message)
+      } else {
+        toast.success(`Student ${!currentStatus ? 'activated' : 'deactivated'} successfully!`)
+        fetchStudents()
+      }
+      setLoading(false)
+    } else {
+      toast.error('You do not have permission to change student status')
     }
   }
 
@@ -350,6 +376,16 @@ export default function StudentList() {
                 <input type="date" placeholder="Date of Birth" value={newStudent.date_of_birth} onChange={e => setNewStudent({...newStudent, date_of_birth: e.target.value})} className="border p-2 rounded" />
                 <input type="date" placeholder="Date of Joining" value={newStudent.date_of_joining} onChange={e => setNewStudent({...newStudent, date_of_joining: e.target.value})} className="border p-2 rounded" />
                 <input placeholder="Aadhar Number" value={newStudent.aadhar_number} onChange={e => setNewStudent({...newStudent, aadhar_number: e.target.value})} className="border p-2 rounded" />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="active"
+                    checked={newStudent.active}
+                    onChange={e => setNewStudent({...newStudent, active: e.target.checked})}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="active" className="text-sm font-medium text-gray-700">Active Student</label>
+                </div>
                 <textarea placeholder="Other Details" value={newStudent.other_details} onChange={e => setNewStudent({...newStudent, other_details: e.target.value})} className="border p-2 rounded col-span-2" />
               </div>
               <div className="flex gap-2">
@@ -366,6 +402,7 @@ export default function StudentList() {
                 <th className="border p-2">Class</th>
                 <th className="border p-2">Parent Name</th>
                 <th className="border p-2">Phone</th>
+                <th className="border p-2">Active Status</th>
                 <th className="border p-2">Actions</th>
               </tr>
             </thead>
@@ -381,6 +418,14 @@ export default function StudentList() {
                       </select></td>
                       <td className="border p-2"><input value={newStudent.parent_name} onChange={e => setNewStudent({...newStudent, parent_name: e.target.value})} className="border p-1 rounded w-full" /></td>
                       <td className="border p-2"><input value={newStudent.phone} onChange={e => setNewStudent({...newStudent, phone: e.target.value})} className="border p-1 rounded w-full" /></td>
+                      <td className="border p-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={newStudent.active}
+                          onChange={e => setNewStudent({...newStudent, active: e.target.checked})}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                      </td>
                       <td className="border p-2">
                         <button onClick={updateStudent} className="bg-green-500 text-white p-1 mr-2 rounded" disabled={loading}>{loading ? 'Saving...' : 'Save'}</button>
                         <button onClick={() => setEditingId(null)} className="bg-gray-500 text-white p-1 rounded">Cancel</button>
@@ -393,6 +438,15 @@ export default function StudentList() {
                       <td className="border p-2">{s.class}</td>
                       <td className="border p-2">{s.parent_name}</td>
                       <td className="border p-2">{s.phone}</td>
+                      <td className="border p-2 text-center">
+                        <button
+                          onClick={() => toggleStudentStatus(s.id, s.active)}
+                          className={`px-2 py-1 rounded text-xs font-semibold ${s.active ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                          disabled={loading}
+                        >
+                          {s.active ? 'Active' : 'Inactive'}
+                        </button>
+                      </td>
                       <td className="border p-2">
                         <button onClick={() => openViewModal(s)} className="bg-purple-500 text-white p-1 mr-2 rounded inline-flex items-center text-sm hover:bg-purple-600">
                           <Eye size={14} className="mr-1" />
@@ -690,6 +744,12 @@ export default function StudentList() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
                     <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.aadhar_number || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <p className={`text-lg p-2 rounded font-semibold ${selectedStudentForView.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {selectedStudentForView.active ? 'Active' : 'Inactive'}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Other Details</label>
