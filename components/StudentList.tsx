@@ -10,6 +10,7 @@ import Link from 'next/link'
 
 type Student = {
   id: string
+  student_id: string
   name: string
   class: string
   parent_name: string
@@ -44,7 +45,10 @@ export default function StudentList() {
   const [feeAmount, setFeeAmount] = useState('')
   const [feeDate, setFeeDate] = useState(new Date().toISOString().split('T')[0])
   const [showReceipt, setShowReceipt] = useState<Fee | null>(null)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [selectedStudentForView, setSelectedStudentForView] = useState<Student | null>(null)
   const [newStudent, setNewStudent] = useState<Partial<Student>>({
+    student_id: '',
     name: '',
     class: '',
     parent_name: '',
@@ -75,8 +79,13 @@ export default function StudentList() {
 
   const addStudent = async () => {
     setLoading(true)
+    
+    // Generate unique student ID
+    const studentId = generateStudentId(newStudent.class || '')
+    
     // Create a clean object without id for insertion
     const studentData = {
+      student_id: studentId,
       name: newStudent.name,
       class: newStudent.class,
       parent_name: newStudent.parent_name,
@@ -94,6 +103,7 @@ export default function StudentList() {
     } else {
       toast.success('Student added successfully!')
       setNewStudent({
+        student_id: '',
         name: '',
         class: '',
         parent_name: '',
@@ -171,6 +181,16 @@ export default function StudentList() {
     fetchStudentFees(student.id)
   }
 
+  const openViewModal = (student: Student) => {
+    setSelectedStudentForView(student)
+    setShowViewModal(true)
+  }
+
+  const closeViewModal = () => {
+    setShowViewModal(false)
+    setSelectedStudentForView(null)
+  }
+
   const closeFeesModal = () => {
     setShowFeesModal(false)
     setSelectedStudentForFees(null)
@@ -237,6 +257,46 @@ export default function StudentList() {
     return stats
   }
 
+  const generateStudentId = (studentClass: string): string => {
+    const year = '2026'
+    const classAbbreviations: { [key: string]: string } = {
+      'Nursery': 'NUR',
+      'LKG': 'LKG',
+      'UKG': 'UKG',
+      'Class 1': 'C01',
+      'Class 2': 'C02',
+      'Class 3': 'C03',
+      'Class 4': 'C04',
+      'Class 5': 'C05'
+    }
+    
+    const classAbbrev = classAbbreviations[studentClass] || 'UNK'
+    
+    // Generate a unique 3-digit number (001-999)
+    let attempts = 0
+    let studentId = ''
+    
+    do {
+      const randomNum = Math.floor(Math.random() * 999) + 1
+      const paddedNum = randomNum.toString().padStart(3, '0')
+      studentId = `RPS${year}${classAbbrev}${paddedNum}`
+      attempts++
+      
+      // Check if this ID already exists
+      const exists = students.some(s => s.student_id === studentId)
+      if (!exists) break
+      
+      // If we've tried too many times, add a suffix
+      if (attempts > 50) {
+        const timestamp = Date.now().toString().slice(-2)
+        studentId = `RPS${year}${classAbbrev}${paddedNum}${timestamp}`
+        break
+      }
+    } while (true)
+    
+    return studentId
+  }
+
   return (
     <div className="p-4">
       <Toaster />
@@ -274,7 +334,7 @@ export default function StudentList() {
               {classes.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '' }) }} className="bg-blue-500 text-white p-2 mb-4">Add Student</button>
+          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ student_id: '', name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '' }) }} className="bg-blue-500 text-white p-2 mb-4">Add Student</button>
           {showAdd && (
             <div className="mb-4 p-4 border rounded bg-gray-50">
               <h3 className="font-bold mb-3">Add New Student</h3>
@@ -301,6 +361,7 @@ export default function StudentList() {
           <table className="w-full border rounded overflow-hidden">
             <thead>
               <tr className="bg-gray-200">
+                <th className="border p-2">Student ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Class</th>
                 <th className="border p-2">Parent Name</th>
@@ -313,6 +374,7 @@ export default function StudentList() {
                 <tr key={s.id} className="hover:bg-gray-50">
                   {editingId === s.id ? (
                     <>
+                      <td className="border p-2 font-mono text-sm bg-gray-100">{s.student_id}</td>
                       <td className="border p-2"><input value={newStudent.name} onChange={e => setNewStudent({...newStudent, name: e.target.value})} className="border p-1 rounded w-full" /></td>
                       <td className="border p-2"><select value={newStudent.class} onChange={e => setNewStudent({...newStudent, class: e.target.value})} className="border p-1 rounded w-full">
                         {classes.map(c => <option key={c} value={c}>{c}</option>)}
@@ -326,11 +388,16 @@ export default function StudentList() {
                     </>
                   ) : (
                     <>
+                      <td className="border p-2 font-mono text-sm bg-blue-50">{s.student_id}</td>
                       <td className="border p-2">{s.name}</td>
                       <td className="border p-2">{s.class}</td>
                       <td className="border p-2">{s.parent_name}</td>
                       <td className="border p-2">{s.phone}</td>
                       <td className="border p-2">
+                        <button onClick={() => openViewModal(s)} className="bg-purple-500 text-white p-1 mr-2 rounded inline-flex items-center text-sm hover:bg-purple-600">
+                          <Eye size={14} className="mr-1" />
+                          View
+                        </button>
                         <button onClick={() => openFeesModal(s)} className="bg-blue-500 text-white p-1 mr-2 rounded inline-flex items-center text-sm hover:bg-blue-600">
                           <Eye size={14} className="mr-1" />
                           Fees
@@ -392,6 +459,7 @@ export default function StudentList() {
             <table className="w-full border rounded overflow-hidden">
               <thead>
                 <tr className="bg-gray-200">
+                  <th className="border p-2">Student ID</th>
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Parent Name</th>
                   <th className="border p-2">Phone</th>
@@ -402,11 +470,16 @@ export default function StudentList() {
               <tbody>
                 {getStudentsByClass(selectedClassForView).map(s => (
                   <tr key={s.id} className="hover:bg-gray-50">
+                    <td className="border p-2 font-mono text-sm bg-blue-50">{s.student_id}</td>
                     <td className="border p-2 font-semibold">{s.name}</td>
                     <td className="border p-2">{s.parent_name}</td>
                     <td className="border p-2">{s.phone}</td>
                     <td className="border p-2 text-sm">{s.address}</td>
                     <td className="border p-2">
+                      <button onClick={() => openViewModal(s)} className="bg-purple-500 text-white p-1 mr-2 rounded inline-flex items-center text-sm hover:bg-purple-600">
+                        <Eye size={14} className="mr-1" />
+                        View
+                      </button>
                       <button onClick={() => openFeesModal(s)} className="bg-blue-500 text-white p-1 mr-2 rounded inline-flex items-center text-sm hover:bg-blue-600">
                         <Eye size={14} className="mr-1" />
                         Fees
@@ -554,6 +627,98 @@ export default function StudentList() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Student Modal */}
+      {showViewModal && selectedStudentForView && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-purple-400 text-white p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedStudentForView.name}</h2>
+                <p className="text-purple-100 text-sm">Student ID: {selectedStudentForView.student_id}</p>
+              </div>
+              <button
+                onClick={closeViewModal}
+                className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                    <p className="text-lg font-mono bg-gray-100 p-2 rounded">{selectedStudentForView.student_id}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.class}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Parent Name</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.parent_name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.phone}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded min-h-[60px]">{selectedStudentForView.address}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.date_of_birth ? new Date(selectedStudentForView.date_of_birth).toLocaleDateString() : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Joining</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.date_of_joining ? new Date(selectedStudentForView.date_of_joining).toLocaleDateString() : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded">{selectedStudentForView.aadhar_number || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Other Details</label>
+                    <p className="text-lg bg-gray-100 p-2 rounded min-h-[60px]">{selectedStudentForView.other_details || 'No additional details'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end space-x-4">
+                <button
+                  onClick={() => {
+                    closeViewModal()
+                    if (window.confirm('Are you sure you want to edit this student?')) {
+                      setEditingId(selectedStudentForView.id)
+                      setNewStudent(selectedStudentForView)
+                    }
+                  }}
+                  className="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition-all font-semibold inline-flex items-center"
+                >
+                  <Edit size={16} className="mr-2" />
+                  Edit Student
+                </button>
+                <button
+                  onClick={closeViewModal}
+                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-all font-semibold"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

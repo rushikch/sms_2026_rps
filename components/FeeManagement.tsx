@@ -9,7 +9,7 @@ import { ArrowLeft, X } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-type Student = { id: string; name: string; class: string; parent_name: string }
+type Student = { id: string; student_id: string; name: string; class: string; parent_name: string }
 type Fee = { id: string; student_id: string; amount: number; date: string; transaction_id: string; student?: Student }
 
 const classes = ['Nursery', 'LKG', 'UKG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5']
@@ -38,7 +38,7 @@ export default function FeeManagement() {
   }, [])
 
   const fetchFees = async () => {
-    let query = supabase.from('fees').select('*, student:students(name, class)')
+    let query = supabase.from('fees').select('*, student:students(name, class, student_id)')
     if (studentIdFilter) {
       query = query.eq('student_id', studentIdFilter)
     }
@@ -51,7 +51,7 @@ export default function FeeManagement() {
   }
 
   const fetchStudents = async () => {
-    const { data, error } = await supabase.from('students').select('id, name, class, parent_name')
+    const { data, error } = await supabase.from('students').select('id, name, class, parent_name, student_id')
     if (error) {
       toast.error('Failed to fetch students: ' + error.message)
     } else {
@@ -77,7 +77,7 @@ export default function FeeManagement() {
       amount: parseFloat(amount),
       date,
       transaction_id: transactionId
-    }).select('*, student:students(name, class)').single()
+    }).select('*, student:students(name, class, student_id)').single()
     if (error) {
       toast.error('Failed to add fee: ' + error.message)
     } else if (data) {
