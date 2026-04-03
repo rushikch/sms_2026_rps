@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, DollarSign, BookOpen, BarChart3, TrendingUp } from 'lucide-react'
+import { Users, DollarSign, BookOpen, BarChart3, TrendingUp, Shield } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -82,6 +82,31 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="flex items-center text-purple-600 font-medium group-hover:translate-x-2 transition-transform">
+                <span>Get Started</span>
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* User Management Card - SuperAdmin Only */}
+        <Link href="/users">
+          <div className="card card-hover p-8 group">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gradient-to-br from-red-500 to-orange-600 p-4 rounded-2xl shadow-lg group-hover:shadow-colored-hover transition-all duration-300">
+                <Shield className="w-10 h-10 md:w-12 md:h-12 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  User Management
+                </h2>
+                <p className="text-gray-600">
+                  Manage users, roles, and system access (SuperAdmin only)
+                </p>
+              </div>
+              <div className="flex items-center text-red-600 font-medium group-hover:translate-x-2 transition-transform">
                 <span>Get Started</span>
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

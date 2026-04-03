@@ -48,6 +48,10 @@ This is a modern, full-stack web application designed to streamline school admin
 ### User Management & Security
 - ✅ Role-based access control (Super Admin, Admin, User)
 - ✅ Secure authentication with Supabase
+- ✅ Create and manage user accounts
+- ✅ Assign and edit user roles dynamically
+- ✅ Delete/remove users from the system
+- ✅ Super Admin only access to user management
 - ✅ Protected routes and middleware
 
 ### UI/UX Features
@@ -66,6 +70,8 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Add, edit, and delete financial transactions
 - ✅ Toggle student active/inactive status
 - ✅ Download student, fee, and financial data as CSV
+- ✅ Create, edit, and delete user accounts
+- ✅ Manage user roles and permissions
 - ✅ All administrative functions
 
 ### Admin
@@ -77,11 +83,13 @@ This is a modern, full-stack web application designed to streamline school admin
 - ❌ Cannot delete students
 - ❌ Cannot edit or delete fee payments
 - ❌ Cannot edit or delete financial transactions
+- ❌ Cannot manage users
 - ❌ Cannot download data
 
 ### User
 - ✅ View-only access to student, fee, and financial information
 - ❌ Cannot modify any data
+- ❌ Cannot manage users
 
 ## �📋 Prerequisites
 
