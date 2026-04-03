@@ -75,7 +75,20 @@ export default function StudentList() {
 
   const addStudent = async () => {
     setLoading(true)
-    const { error } = await supabase.from('students').insert(newStudent)
+    // Create a clean object without id for insertion
+    const studentData = {
+      name: newStudent.name,
+      class: newStudent.class,
+      parent_name: newStudent.parent_name,
+      phone: newStudent.phone,
+      address: newStudent.address,
+      date_of_birth: newStudent.date_of_birth,
+      date_of_joining: newStudent.date_of_joining,
+      other_details: newStudent.other_details,
+      aadhar_number: newStudent.aadhar_number
+    }
+    
+    const { error } = await supabase.from('students').insert(studentData)
     if (error) {
       toast.error('Failed to add student: ' + error.message)
     } else {
@@ -261,7 +274,7 @@ export default function StudentList() {
               {classes.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-          <button onClick={() => setShowAdd(true)} className="bg-blue-500 text-white p-2 mb-4">Add Student</button>
+          <button onClick={() => { setShowAdd(true); setEditingId(null); setNewStudent({ name: '', class: '', parent_name: '', phone: '', address: '', date_of_birth: '', date_of_joining: '', other_details: '', aadhar_number: '' }) }} className="bg-blue-500 text-white p-2 mb-4">Add Student</button>
           {showAdd && (
             <div className="mb-4 p-4 border rounded bg-gray-50">
               <h3 className="font-bold mb-3">Add New Student</h3>
