@@ -12,7 +12,7 @@
       "static/chunks/fd9d1056-2ad972bbe7acdb46.js",
       "static/chunks/117-304c7699b6f39f79.js",
       "static/chunks/main-app-ce8eb8ceb32d4ad8.js",
-      "static/css/80c232e84adc6d3a.css",
+      "static/css/da77f1b54634ee15.css",
       "static/chunks/aaea2bcf-8b4a4bc44e92607b.js",
       "static/chunks/44530001-5f86e157ede9686f.js",
       "static/chunks/411-851327bcd96c51d2.js",
@@ -28,7 +28,19 @@
       "static/chunks/411-851327bcd96c51d2.js",
       "static/chunks/664-844d0eeb779530d2.js",
       "static/chunks/729-2a8330f9775f50d0.js",
-      "static/chunks/app/fees/page-e1f097b7f042f372.js"
+      "static/chunks/app/fees/page-3d7785303dbb049a.js"
+    ],
+    "/students/page": [
+      "static/chunks/webpack-8db40c0f0ce1f953.js",
+      "static/chunks/fd9d1056-2ad972bbe7acdb46.js",
+      "static/chunks/117-304c7699b6f39f79.js",
+      "static/chunks/main-app-ce8eb8ceb32d4ad8.js",
+      "static/chunks/aaea2bcf-8b4a4bc44e92607b.js",
+      "static/chunks/44530001-5f86e157ede9686f.js",
+      "static/chunks/411-851327bcd96c51d2.js",
+      "static/chunks/664-844d0eeb779530d2.js",
+      "static/chunks/729-2a8330f9775f50d0.js",
+      "static/chunks/app/students/page-3498c2f63cd3a945.js"
     ],
     "/login/page": [
       "static/chunks/webpack-8db40c0f0ce1f953.js",
@@ -47,18 +59,6 @@
       "static/chunks/main-app-ce8eb8ceb32d4ad8.js",
       "static/chunks/664-844d0eeb779530d2.js",
       "static/chunks/app/page-eb83eb926ec0cd29.js"
-    ],
-    "/students/page": [
-      "static/chunks/webpack-8db40c0f0ce1f953.js",
-      "static/chunks/fd9d1056-2ad972bbe7acdb46.js",
-      "static/chunks/117-304c7699b6f39f79.js",
-      "static/chunks/main-app-ce8eb8ceb32d4ad8.js",
-      "static/chunks/aaea2bcf-8b4a4bc44e92607b.js",
-      "static/chunks/44530001-5f86e157ede9686f.js",
-      "static/chunks/411-851327bcd96c51d2.js",
-      "static/chunks/664-844d0eeb779530d2.js",
-      "static/chunks/729-2a8330f9775f50d0.js",
-      "static/chunks/app/students/page-3498c2f63cd3a945.js"
     ],
     "/unauthorized/page": [
       "static/chunks/webpack-8db40c0f0ce1f953.js",
