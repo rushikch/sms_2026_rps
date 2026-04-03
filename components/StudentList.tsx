@@ -193,8 +193,8 @@ export default function StudentList() {
                       <Eye size={14} className="mr-1" />
                       View Fees
                     </Link>
-                    {(role === 'admin' || role === 'superadmin') && <button onClick={() => { setEditingId(s.id); setNewStudent(s) }} className="bg-yellow-500 text-white p-1 mr-2">Edit</button>}
-                    {role === 'superadmin' && <button onClick={() => deleteStudent(s.id)} className="bg-red-500 text-white p-1" disabled={loading}>{loading ? 'Deleting...' : 'Delete'}</button>}
+                    {(role === 'admin' || role === 'superadmin') && <button onClick={() => { if (window.confirm('Are you sure you want to edit this student?')) { setEditingId(s.id); setNewStudent(s) } }} className="bg-yellow-500 text-white p-1 mr-2">Edit</button>}
+                    {role === 'superadmin' && <button onClick={() => { if (window.confirm('Are you sure you want to delete this student? This action cannot be undone.')) deleteStudent(s.id) }} className="bg-red-500 text-white p-1" disabled={loading}>{loading ? 'Deleting...' : 'Delete'}</button>}
                   </td>
                 </>
               )}

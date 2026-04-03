@@ -49,6 +49,7 @@ export default function FeeManagement() {
   const fetchStudents = async () => {
     const { data } = await supabase.from('students').select('id, name, class, parent_name')
     setStudents(data || [])
+    setFilteredStudents(data || [])
   }
 
   const searchStudents = () => {
@@ -214,8 +215,8 @@ export default function FeeManagement() {
                   <td className="border p-2">{f.date}</td>
                   <td className="border p-2">{f.transaction_id}</td>
                   <td className="border p-2">
-                    {role === 'superadmin' && <button onClick={() => { setEditingId(f.id); setAmount(f.amount.toString()); setDate(f.date) }} className="bg-yellow-500 text-white p-1 mr-2">Edit</button>}
-                    {role === 'superadmin' && <button onClick={() => deleteFee(f.id)} disabled={loading} className="bg-red-500 text-white p-1 disabled:opacity-50">{loading ? 'Deleting...' : 'Delete'}</button>}
+                    {role === 'superadmin' && <button onClick={() => { if (window.confirm('Are you sure you want to edit this fee?')) { setEditingId(f.id); setAmount(f.amount.toString()); setDate(f.date) } }} className="bg-yellow-500 text-white p-1 mr-2">Edit</button>}
+                    {role === 'superadmin' && <button onClick={() => { if (window.confirm('Are you sure you want to delete this fee? This action cannot be undone.')) deleteFee(f.id) }} disabled={loading} className="bg-red-500 text-white p-1 disabled:opacity-50">{loading ? 'Deleting...' : 'Delete'}</button>}
                   </td>
                 </>
               )}
