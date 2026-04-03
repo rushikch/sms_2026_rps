@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useReactToPrint } from 'react-to-print'
 
-type Student = { id: string; name: string; class: string }
+type Student = { id: string; name: string; class: string; parent_name: string }
 type Fee = { id: string; student_id: string; amount: number; date: string; transaction_id: string }
 
 interface ReceiptProps {
@@ -28,6 +28,7 @@ export default function Receipt({ fee, student, onClose }: ReceiptProps) {
           <h2 className="text-center text-lg">Fee Receipt</h2>
           <div className="mt-4">
             <p><strong>Student Name:</strong> {student.name}</p>
+            <p><strong>Parent Name:</strong> {student.parent_name}</p>
             <p><strong>Class:</strong> {student.class}</p>
             <p><strong>Fee Amount:</strong> ₹{fee.amount}</p>
             <p><strong>Date:</strong> {fee.date}</p>
