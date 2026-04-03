@@ -215,22 +215,6 @@ export default function FinanceManagement() {
     document.body.removeChild(link)
   }
 
-  const getTotalIncome = () => {
-    return getFilteredTransactions()
-      .filter(t => t.type === 'collection')
-      .reduce((sum, t) => sum + t.amount, 0)
-  }
-
-  const getTotalExpenses = () => {
-    return getFilteredTransactions()
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0)
-  }
-
-  const getNetAmount = () => {
-    return getTotalIncome() - getTotalExpenses()
-  }
-
   return (
     <div className="p-4">
       <Toaster />
@@ -243,43 +227,34 @@ export default function FinanceManagement() {
 
       <h1 className="text-2xl font-bold mb-4">Financial Management</h1>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-green-100 p-4 rounded-lg border border-green-200">
-          <h3 className="text-lg font-semibold text-green-800">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">₹{getTotalIncome().toFixed(2)}</p>
-        </div>
-        <div className="bg-red-100 p-4 rounded-lg border border-red-200">
-          <h3 className="text-lg font-semibold text-red-800">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">₹{getTotalExpenses().toFixed(2)}</p>
-        </div>
-        <div className={`p-4 rounded-lg border ${getNetAmount() >= 0 ? 'bg-blue-100 border-blue-200' : 'bg-orange-100 border-orange-200'}`}>
-          <h3 className={`text-lg font-semibold ${getNetAmount() >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>Net Amount</h3>
-          <p className={`text-2xl font-bold ${getNetAmount() >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-            ₹{getNetAmount().toFixed(2)}
-          </p>
-        </div>
-      </div>
-
       {/* Action Buttons */}
       <div className="mb-4 flex gap-2">
-        {(role === 'admin' || role === 'superadmin') && (
+        {role === 'admin' && (
           <button
             onClick={() => { setShowAdd(true); resetForm(); setEditingId(null) }}
             className="bg-blue-500 text-white p-2 inline-flex items-center"
           >
             <Plus size={16} className="mr-2" />
-            Add Transaction
+            Add Expense
           </button>
         )}
         {role === 'superadmin' && (
-          <button
-            onClick={downloadTransactionsCSV}
-            className="bg-green-500 text-white p-2 inline-flex items-center"
-          >
-            <Download size={16} className="mr-2" />
-            Download Data
-          </button>
+          <>
+            <button
+              onClick={() => { setShowAdd(true); resetForm(); setEditingId(null) }}
+              className="bg-blue-500 text-white p-2 inline-flex items-center"
+            >
+              <Plus size={16} className="mr-2" />
+              Add Transaction
+            </button>
+            <button
+              onClick={downloadTransactionsCSV}
+              className="bg-green-500 text-white p-2 inline-flex items-center"
+            >
+              <Download size={16} className="mr-2" />
+              Download Data
+            </button>
+          </>
         )}
       </div>
 
@@ -438,7 +413,7 @@ export default function FinanceManagement() {
               <th className="border p-2">Category</th>
               <th className="border p-2">Type</th>
               <th className="border p-2">Amount</th>
-              {(role === 'admin' || role === 'superadmin') && (
+              {role === 'superadmin' && (
                 <th className="border p-2">Actions</th>
               )}
             </tr>
@@ -531,27 +506,23 @@ export default function FinanceManagement() {
                     }`}>
                       ₹{transaction.amount.toFixed(2)}
                     </td>
-                    {(role === 'admin' || role === 'superadmin') && (
+                    {role === 'superadmin' && (
                       <td className="border p-2">
-                        {role === 'superadmin' && (
-                          <button
-                            onClick={() => startEdit(transaction)}
-                            className="bg-yellow-500 text-white p-1 mr-2 rounded"
-                            title="Edit"
-                          >
-                            <Edit size={14} />
-                          </button>
-                        )}
-                        {role === 'superadmin' && (
-                          <button
-                            onClick={() => deleteTransaction(transaction.id)}
-                            disabled={loading}
-                            className="bg-red-500 text-white p-1 rounded disabled:opacity-50"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => startEdit(transaction)}
+                          className="bg-yellow-500 text-white p-1 mr-2 rounded"
+                          title="Edit"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => deleteTransaction(transaction.id)}
+                          disabled={loading}
+                          className="bg-red-500 text-white p-1 rounded disabled:opacity-50"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </td>
                     )}
                   </>

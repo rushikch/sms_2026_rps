@@ -73,7 +73,7 @@ This is a modern, full-stack web application designed to streamline school admin
 - ✅ Edit existing students
 - ✅ Toggle student active/inactive status
 - ✅ Add fee payments
-- ✅ Add financial transactions (expenses and collections)
+- ✅ Add financial transactions (expenses only - no view, edit, or delete capabilities)
 - ❌ Cannot delete students
 - ❌ Cannot edit or delete fee payments
 - ❌ Cannot edit or delete financial transactions
