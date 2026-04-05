@@ -1,12 +1,12 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/api/users/route": "app/api/users/route.js",
-  "/login/page": "app/login/page.js",
+  "/api/students/bulk-upload/route": "app/api/students/bulk-upload/route.js",
+  "/fees/page": "app/fees/page.js",
   "/finance/page": "app/finance/page.js",
+  "/login/page": "app/login/page.js",
   "/page": "app/page.js",
   "/students/page": "app/students/page.js",
-  "/fees/page": "app/fees/page.js",
   "/unauthorized/page": "app/unauthorized/page.js",
-  "/users/page": "app/users/page.js",
-  "/api/students/bulk-upload/route": "app/api/students/bulk-upload/route.js"
+  "/users/page": "app/users/page.js"
 }
